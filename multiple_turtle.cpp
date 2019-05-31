@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <turtlesim/Pose.h>
+#include <turtlesim/Spawn.h>
 
 #include <iostream>
 #include <algorithm>
@@ -47,6 +48,16 @@ int main(int argc, char** argv)
 
     int n_turtle = atoi(argv[1]);
     cout << "n_turtle = " << n_turtle << endl;
+
+    for (int i = 1; i < n_turtle; i++) {
+       ros::service::waitForService("spawn");
+        ros::ServiceClient spawner = h.serviceClient<turtlesim::Spawn>("spawn");
+        turtlesim::Spawn turtle;
+        turtle.request.x = rand() % 12;
+        turtle.request.y = rand() % 12;
+        turtle.request.theta = 1.25;
+        spawner.call(turtle);
+    }
 
     double x0[n_turtle], y0[n_turtle];
 
@@ -107,42 +118,42 @@ int main(int argc, char** argv)
 
                     double dalpha = asin ((cos(theta)*dy-sin(theta)*dx) / distance);
 
-                    if (sub[idx].current_pose.x > x0[idx])
+                    if (sub[idx].current_pose.x > x0[idx] + 0.3)
                     {
                         if (sub[idx].current_pose.theta > -PI/2 && sub[idx].current_pose.theta < PI/2)
                             msg = getMessage(
-                            -min(5*distance, 5.0),
+                            -min(6*distance, 6.0),
                             -6*dalpha
                             );
                         else msg = getMessage(
-                            min(5*distance, 5.0),
+                            min(6*distance, 6.0),
                             6*dalpha
                             );
                     }
-                    else if(sub[idx].current_pose.x < x0[idx])
+                    else if(sub[idx].current_pose.x < x0[idx] - 0.3)
                     {
                         if (sub[idx].current_pose.theta > PI/2 || sub[idx].current_pose.theta < -PI/2)
                             msg = getMessage(
-                            -min(5*distance, 5.0),
+                            -min(6*distance, 6.0),
                             -6*dalpha
                             );
                         else msg = getMessage(
-                            min(5*distance, 5.0),
+                            min(6*distance, 6.0),
                             6*dalpha
                             );
 
                     }
-                    else if (sub[idx].current_pose.x <= x0[idx] && sub[idx].current_pose.x >= x0[idx] )
+                    else if (sub[idx].current_pose.x <= x0[idx] + 0.3 && sub[idx].current_pose.x >= x0[idx] - 0.3 )
                     {
                         if (sub[idx].current_pose.y >= y0[idx])
                         {
                             if (sub[idx].current_pose.theta >= 0)
                                 msg = getMessage(
-                                -min(5*distance, 5.0),
+                                -min(6*distance, 6.0),
                                 -6*dalpha
                                 );
                             else msg = getMessage(
-                                min(5*distance, 5.0),
+                                min(6*distance, 6.0),
                                 6*dalpha
                                 );
                         }
@@ -150,11 +161,11 @@ int main(int argc, char** argv)
                         {
                             if (sub[idx].current_pose.theta < 0)
                                 msg = getMessage(
-                                -min(5*distance, 5.0),
+                                -min(6*distance, 6.0),
                                 -6*dalpha
                                 );
                             else msg = getMessage(
-                                min(5*distance, 5.0),
+                                min(6*distance, 6.0),
                                 6*dalpha
                                 );
                         }
